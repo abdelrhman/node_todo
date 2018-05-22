@@ -18,12 +18,10 @@ app.post('/todos', (req, res) => {
 
   todo.save().then(
     doc => {
-      console.log(doc);
-      res.status(400).send(doc);
+      res.send(doc);
     },
     e => {
-      console.log(e);
-      res.send(e);
+      res.status(400).send(e);
     }
   );
 });
@@ -31,3 +29,5 @@ app.post('/todos', (req, res) => {
 app.listen(3000, () => {
   console.log('Started on 3000');
 });
+
+module.exports = { app };
