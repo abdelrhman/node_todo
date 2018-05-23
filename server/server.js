@@ -12,7 +12,6 @@ var app = express();
 app.use(bodyParser.json());
 
 app.post('/todos', (req, res) => {
-  console.log(req.body);
   var todo = new Todo({
     text: req.body.text,
     completed: req.body.completed,
@@ -82,7 +81,7 @@ app.delete('/todos/:id', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log('Started on 3000');
+  console.log(`Started on ${PORT}`);
 });
 
 module.exports = { app };
