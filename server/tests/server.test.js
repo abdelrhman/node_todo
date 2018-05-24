@@ -12,7 +12,9 @@ const todos = [
   },
   {
     _id: new ObjectID(),
-    text: 'Second test todo'
+    text: 'Second test todo',
+    completed: true,
+    completedAt: 333
   }
 ];
 
@@ -145,6 +147,32 @@ describe('DELETE /todos/id', () => {
       .delete(`/todos/invalidid`)
       .send()
       .expect(404)
+      .end(done);
+  });
+});
+
+describe('PATCH /todos/id', () => {
+  it('Should update todo', done => {
+    request(app)
+      .patch(`/todos/${todos[0]._id}`)
+      .send({ completed: true })
+      .expect(200)
+      .expect(res => {
+        expect(res.body.todo.completed).toBe(true);
+        expect(res.body.todo.completedAt).toBeTruthy();
+      })
+      .end(done);
+  });
+
+  it('Should clear completedAt', done => {
+    request(app)
+      .patch(`/todos/${todos[1]._id}`)
+      .send({ completed: false })
+      .expect(200)
+      .expect(res => {
+        expect(res.body.todo.completed).toBe(false);
+        expect(res.body.todo.completedAt).toBeNull();
+      })
       .end(done);
   });
 });
