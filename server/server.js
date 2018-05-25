@@ -7,6 +7,7 @@ require('./config/config');
 const { mongoose } = require('./db/mongoose');
 const { User } = require('./models/User');
 const { Todo } = require('./models/Todo');
+const { authenticate } = require('./middlewear/authenticate');
 
 const PORT = process.env.PORT;
 
@@ -130,6 +131,10 @@ app.post('/users', (req, res) => {
     .catch(err => {
       res.status(400).send();
     });
+});
+
+app.get('/users/me', authenticate, (req, res) => {
+  res.send(req.user);
 });
 
 app.listen(PORT, () => {
