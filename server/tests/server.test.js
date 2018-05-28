@@ -263,4 +263,25 @@ describe('POST /users/login', () => {
           .catch(err => done(err));
       });
   });
+
+  describe('/users/me/token', () => {
+    it('should delete user token', done => {
+      request(app)
+        .delete('/users/me/token')
+        .set('x-auth', users[0].tokens[0].token)
+        .expect(200)
+        .end((err, res) => {
+          if (err) {
+            return done(err);
+          }
+
+          User.findById(users[0]._id)
+            .then(user => {
+              expect(user.tokens.length).toBe(0);
+              return done();
+            })
+            .catch(e => done(e));
+        });
+    });
+  });
 });
