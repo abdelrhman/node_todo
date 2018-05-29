@@ -15,6 +15,7 @@ describe('POST /todos', () => {
     var text = 'test todo text';
     request(app)
       .post('/todos')
+      .set('x-auth', users[0].tokens[0].token)
       .send({ text })
       .expect(200)
       .expect(res => {
@@ -39,6 +40,7 @@ describe('POST /todos', () => {
   it('should not create todo', done => {
     request(app)
       .post('/todos')
+      .set('x-auth', users[0].tokens[0].token)
       .send()
       .expect(400)
       .end((err, res) => {
@@ -61,10 +63,11 @@ describe('GET /todos', () => {
   it('should get all todos', done => {
     request(app)
       .get('/todos')
+      .set('x-auth', users[0].tokens[0].token)
       .send()
       .expect(200)
       .expect(res => {
-        expect(res.body.todos.length).toBe(2);
+        expect(res.body.todos.length).toBe(1);
       })
       .end((err, res) => {
         if (err) {
@@ -77,12 +80,14 @@ describe('GET /todos', () => {
 
 describe('GET /todos/id', () => {
   it('shoud get a todo', done => {
+    console.log(todos[1]._id.toHexString());
     request(app)
-      .get(`/todos/${todos[0]._id}`)
+      .get(`/todos/${todos[1]._id.toHexString()}`)
+      .set('x-auth', users[1].tokens[0].token)
       .send()
       .expect(200)
       .expect(res => {
-        expect(res.body.todo.text).toBe(todos[0].text);
+        expect(res.body.todo.text).toBe(todos[1].text);
       })
       .end(done);
   });
@@ -91,6 +96,7 @@ describe('GET /todos/id', () => {
     const newID = new ObjectID();
     request(app)
       .get(`/todos/${newID}`)
+      .set('x-auth', users[0].tokens[0].token)
       .send()
       .expect(404)
       .end(done);
@@ -99,6 +105,7 @@ describe('GET /todos/id', () => {
   it('should return 404 if todo id is invalid', done => {
     request(app)
       .get(`/todos/invalidid`)
+      .set('x-auth', users[0].tokens[0].token)
       .send()
       .expect(404)
       .end(done);
@@ -109,6 +116,7 @@ describe('DELETE /todos/id', () => {
   it('Should remove a todo by id', done => {
     request(app)
       .delete(`/todos/${todos[0]._id}`)
+      .set('x-auth', users[0].tokens[0].token)
       .send()
       .expect(200)
       .expect(res => {
@@ -121,6 +129,7 @@ describe('DELETE /todos/id', () => {
     const newID = new ObjectID();
     request(app)
       .delete(`/todos/${newID}`)
+      .set('x-auth', users[0].tokens[0].token)
       .send()
       .expect(404)
       .end(done);
@@ -129,6 +138,7 @@ describe('DELETE /todos/id', () => {
   it('should return 404 if todo id is invalid', done => {
     request(app)
       .delete(`/todos/invalidid`)
+      .set('x-auth', users[0].tokens[0].token)
       .send()
       .expect(404)
       .end(done);
@@ -139,6 +149,7 @@ describe('PATCH /todos/id', () => {
   it('Should update todo', done => {
     request(app)
       .patch(`/todos/${todos[0]._id}`)
+      .set('x-auth', users[0].tokens[0].token)
       .send({ completed: true })
       .expect(200)
       .expect(res => {
@@ -150,7 +161,8 @@ describe('PATCH /todos/id', () => {
 
   it('Should clear completedAt', done => {
     request(app)
-      .patch(`/todos/${todos[1]._id}`)
+      .patch(`/todos/${todos[0]._id}`)
+      .set('x-auth', users[0].tokens[0].token)
       .send({ completed: false })
       .expect(200)
       .expect(res => {
@@ -219,8 +231,8 @@ describe('POST /users/login', () => {
     request(app)
       .post('/users/login')
       .send({
-        email: users[0].email,
-        password: users[0].password
+        email: users[1].email,
+        password: users[1].password
       })
       .expect(200)
       .expect(res => {
@@ -228,13 +240,13 @@ describe('POST /users/login', () => {
       })
       .end((err, res) => {
         if (err) {
-          done(err);
+          return done(err);
         }
 
-        User.findById(users[0]._id)
+        User.findById(users[1]._id)
           .then(user => {
             expect(user.tokens[1].token).toEqual(res.headers['x-auth']);
-            done();
+            return done();
           })
           .catch(err => done(err));
       });
@@ -253,12 +265,12 @@ describe('POST /users/login', () => {
       })
       .end((err, res) => {
         if (err) {
-          done(err);
+          return done(err);
         }
         User.findById(users[0]._id)
           .then(user => {
             expect(user.tokens[1]).toBeFalsy();
-            done();
+            return done();
           })
           .catch(err => done(err));
       });
