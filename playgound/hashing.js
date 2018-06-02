@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 var message = 'I am a test message';
 var hash = SHA256(message).toString();
 
-var password = 'abc123';
+var password = process.env.JWT_SECRET;
 //
 // bcrypt.genSalt(10, (err, saltValue) => {
 //   bcrypt.hash(password, saltValue, (err, hash) => {
